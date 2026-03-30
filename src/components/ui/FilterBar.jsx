@@ -1,9 +1,12 @@
 import { ChevronDown } from 'lucide-react';
+import { useRatings } from '../../hooks/usemanga.js';
 
 const TYPES = ['All', 'Manga', 'Manhwa', 'Manhua'];
 const STATUSES = ['All', 'Ongoing', 'Completed'];
 
 export default function FilterBar({ genres = [], filters, onChange }) {
+  const { data: ratings = [] } = useRatings();
+
   const handleChange = (key, value) => {
     onChange({ ...filters, [key]: value === 'All' ? '' : value });
   };
@@ -32,6 +35,14 @@ export default function FilterBar({ genres = [], filters, onChange }) {
         value={filters.genre || 'All'}
         options={['All', ...genres]}
         onChange={(v) => handleChange('genre', v)}
+      />
+
+      {/* Rating */}
+      <SelectFilter
+        label="Rating"
+        value={filters.rating || 'All'}
+        options={['All', ...ratings]}
+        onChange={(v) => handleChange('rating', v)}
       />
 
       {/* Active filters count */}

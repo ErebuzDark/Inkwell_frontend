@@ -15,32 +15,48 @@ export default function ChapterList({ chapters = [], mangaId }) {
       <div className="divide-y divide-ink-100 dark:divide-ink-800 rounded-xl border border-ink-100 dark:border-ink-800 overflow-hidden">
         {visible.map((ch) => {
           const isLastRead = ch.id === lastRead;
-          return (
-            <Link
-              key={ch.id}
-              to={`/read/${ch.id}?manga=${mangaId}`}
-              className={`flex items-center justify-between px-4 py-3 transition-colors duration-100
-                ${isLastRead
-                  ? 'bg-accent/5 dark:bg-accent/10'
-                  : 'bg-white dark:bg-ink-900 hover:bg-ink-50 dark:hover:bg-ink-800'
-                }`}
+          const isExternal = !!ch.externalUrl;
+          
+          const content = (
+            <div className={`flex items-center justify-between px-4 py-3 transition-colors duration-100 cursor-pointer
+              ${isLastRead
+                ? 'bg-accent/5 dark:bg-accent/10'
+                : 'bg-white dark:bg-ink-900 hover:bg-ink-50 dark:hover:bg-ink-800'
+              }`}
             >
               <div className="flex items-center gap-3">
                 {isLastRead && (
                   <BookOpen size={13} className="text-accent shrink-0" />
                 )}
                 <div>
-                  <span className="text-sm font-display font-medium text-ink-800 dark:text-ink-200">
-                    {ch.title || `Chapter ${ch.number}`}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-display font-medium text-ink-800 dark:text-ink-200">
+                      {ch.title || `Chapter ${ch.number}`}
+                    </span>
+                    {isExternal && (
+                      <span className="badge bg-ink-100 dark:bg-ink-800 text-ink-400 text-[9px] uppercase tracking-wider font-mono">
+                        External
+                      </span>
+                    )}
+                  </div>
                   {isLastRead && (
-                    <span className="ml-2 badge bg-accent/10 text-accent text-[10px]">
+                    <span className="badge bg-accent/10 text-accent text-[10px]">
                       Last read
                     </span>
                   )}
                 </div>
               </div>
               <span className="text-xs font-mono text-ink-400 shrink-0">{ch.date}</span>
+            </div>
+          );
+
+          return isExternal ? (
+            <a key={ch.id} href={ch.externalUrl} target="_blank" rel="noopener noreferrer" className="block">
+              {content}
+            </a>
+          ) : (
+            <Link key={ch.id} to={`/read/${ch.id}?manga=${mangaId}`} className="block">
+              {content}
             </Link>
           );
         })}

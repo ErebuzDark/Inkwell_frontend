@@ -28,9 +28,10 @@ api.interceptors.response.use(
 
 export const mangaApi = {
   list: (page = 1) => api.get('manga', { params: { page } }),
-  detail: (id) => api.get(`manga/${id}`),
-  latest: () => api.get('manga/latest'),
-  genres: () => api.get('manga/genres'),
+  detail: (id) => api.get(`/manga/${id}`),
+  latest: () => api.get('/manga/latest'),
+  genres: () => api.get('/manga/genres'),
+  ratings: () => api.get('/manga/ratings'),
 };
 
 export const chapterApi = {

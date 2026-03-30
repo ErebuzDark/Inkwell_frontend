@@ -39,6 +39,14 @@ export function useGenres() {
   });
 }
 
+export function useRatings() {
+  return useQuery({
+    queryKey: ['ratings'],
+    queryFn: () => mangaApi.ratings(),
+    staleTime: 24 * 60 * 60 * 1000,
+  });
+}
+
 export function useChapterPages(chapterId) {
   return useQuery({
     queryKey: ['chapter', chapterId],
@@ -48,8 +56,9 @@ export function useChapterPages(chapterId) {
   });
 }
 
-export function useSearch(query, filters) {
-  const hasQuery = query?.trim().length > 0 || Object.values(filters || {}).some(Boolean);
+export function useSearch(query, filters = {}) {
+  const hasQuery = !!(query?.trim() || Object.values(filters).some(Boolean));
+
   return useInfiniteQuery({
     queryKey: ['search', query, filters],
     queryFn: ({ pageParam = 1 }) => searchApi.search(query, { ...filters, page: pageParam }),
