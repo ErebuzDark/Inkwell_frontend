@@ -37,6 +37,7 @@ export default function LazyImage({ src, alt, className, fallback }) {
             loaded ? 'opacity-100' : 'opacity-0'
           }`}
           loading="lazy"
+          referrerPolicy="no-referrer"
         />
       )}
 
