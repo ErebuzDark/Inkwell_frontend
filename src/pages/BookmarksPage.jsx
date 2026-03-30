@@ -36,6 +36,7 @@ export default function BookmarksPage() {
                   alt={manga.title}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                   loading="lazy"
+                  referrerPolicy="no-referrer"
                 />
               </Link>
 

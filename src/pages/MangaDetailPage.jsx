@@ -49,6 +49,7 @@ export default function MangaDetailPage() {
               src={manga.cover}
               alt={manga.title}
               className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
             />
           </div>
         </div>
