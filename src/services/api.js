@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+let baseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+if (!baseUrl.endsWith('/api') && !baseUrl.endsWith('/api/')) {
+  baseUrl = baseUrl.endsWith('/') ? `${baseUrl}api` : `${baseUrl}/api`;
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: baseUrl,
   timeout: 20000,
 });
 
@@ -22,16 +27,16 @@ api.interceptors.response.use(
 );
 
 export const mangaApi = {
-  list: (page = 1) => api.get('/manga', { params: { page } }),
-  detail: (id) => api.get(`/manga/${id}`),
-  latest: () => api.get('/manga/latest'),
-  genres: () => api.get('/manga/genres'),
+  list: (page = 1) => api.get('manga', { params: { page } }),
+  detail: (id) => api.get(`manga/${id}`),
+  latest: () => api.get('manga/latest'),
+  genres: () => api.get('manga/genres'),
 };
 
 export const chapterApi = {
-  pages: (id) => api.get(`/chapters/${id}`),
+  pages: (id) => api.get(`chapters/${id}`),
 };
 
 export const searchApi = {
-  search: (q, filters = {}) => api.get('/search', { params: { q, ...filters } }),
+  search: (q, filters = {}) => api.get('search', { params: { q, ...filters } }),
 };
