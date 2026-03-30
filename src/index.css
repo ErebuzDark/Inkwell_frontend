@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --scrollbar-thumb: #d9d9de;
+  }
+  .dark {
+    --scrollbar-thumb: #494959;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-body antialiased bg-ink-50 text-ink-900 dark:bg-ink-950 dark:text-ink-100 transition-colors duration-200;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 3px;
+  }
+}
+
+@layer components {
+  .card-hover {
+    @apply transition-transform duration-200 hover:-translate-y-0.5;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium font-display
+           hover:bg-accent-hover transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-accent/40;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
+           text-ink-600 dark:text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-800
+           transition-colors duration-150 focus:outline-none;
+  }
+
+  .input-base {
+    @apply w-full px-3 py-2 rounded-lg border border-ink-200 dark:border-ink-700
+           bg-white dark:bg-ink-900 text-ink-900 dark:text-ink-100
+           placeholder:text-ink-400 dark:placeholder:text-ink-500
+           focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent
+           text-sm font-body transition-colors duration-150;
+  }
+}
+
+/* Reader mode overrides */
+.reader-page img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Manga type color tags */
+.type-manga   { @apply bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400; }
+.type-manhwa  { @apply bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400; }
+.type-manhua  { @apply bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400; }
+.type-default { @apply bg-ink-100 text-ink-600 dark:bg-ink-800 dark:text-ink-400; }
