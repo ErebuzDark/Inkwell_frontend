@@ -5,14 +5,22 @@ import { useSearch, useMangaList, useGenres } from '../hooks/usemanga.js';
 import MangaGrid from '../components/ui/MangaGrid.jsx';
 import FilterBar from '../components/ui/FilterBar.jsx';
 import { PageSpinner, ErrorState, EmptyState, Pagination } from '../components/ui/shared.jsx';
+import { useAppStore } from '../store/appStore.js';
 
 export default function BrowsePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get('q') || '');
+  const { browseFilters, setBrowseFilters, clearBrowseFilters } = useAppStore();
+
+  const [query, setQuery] = useState(browseFilters.q || searchParams.get('q') || '');
   const [debouncedQ, setDebouncedQ] = useState(query);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState(browseFilters.filters || {});
 
   const { data: genres = [] } = useGenres();
+
+  // Sync with store
+  useEffect(() => {
+    setBrowseFilters(debouncedQ, filters);
+  }, [debouncedQ, filters, setBrowseFilters]);
 
   // Debounce search input
   useEffect(() => {
@@ -22,12 +30,23 @@ export default function BrowsePage() {
     return () => clearTimeout(t);
   }, [query]);
 
-  // Sync URL param
+  // Sync URL param (only for search query)
   useEffect(() => {
-    const q = searchParams.get('q') || '';
-    setQuery(q);
-    setDebouncedQ(q);
+    const q = searchParams.get('q');
+    if (q !== null && q !== query) {
+      setQuery(q);
+      setDebouncedQ(q);
+    }
   }, [searchParams]);
+
+  // Update URL when search changes
+  useEffect(() => {
+    if (debouncedQ) {
+      setSearchParams({ q: debouncedQ }, { replace: true });
+    } else if (searchParams.get('q')) {
+      setSearchParams({}, { replace: true });
+    }
+  }, [debouncedQ, setSearchParams, searchParams]);
 
   const hasSearchOrFilters = debouncedQ.trim() || Object.values(filters).some(Boolean);
 

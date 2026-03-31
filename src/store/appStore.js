@@ -34,6 +34,11 @@ export const useAppStore = create(
         set((state) => ({
           readingHistory: { ...state.readingHistory, [mangaId]: chapterId },
         })),
+
+      // Browse persistence
+      browseFilters: { q: '', filters: {} },
+      setBrowseFilters: (q, filters) => set({ browseFilters: { q, filters } }),
+      clearBrowseFilters: () => set({ browseFilters: { q: '', filters: {} } }),
     }),
     {
       name: 'inkwell-store',
@@ -41,6 +46,7 @@ export const useAppStore = create(
         theme: state.theme,
         bookmarks: state.bookmarks,
         readingHistory: state.readingHistory,
+        browseFilters: state.browseFilters,
       }),
     }
   )

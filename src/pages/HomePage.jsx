@@ -4,6 +4,7 @@ import { useMangaList, useLatestUpdates } from '../hooks/usemanga.js';
 import MangaGrid from '../components/ui/MangaGrid.jsx';
 import DataSourceBadge from '../components/ui/DataSourceBadge.jsx';
 import { PageSpinner, ErrorState, SectionHeader } from '../components/ui/shared.jsx';
+import LazyImage from '../components/ui/LazyImage.jsx';
 
 export default function HomePage() {
   const { data: listData, isLoading: listLoading, error: listError } = useMangaList(1);
@@ -92,13 +93,11 @@ function LatestCard({ manga }) {
       className="flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-ink-900 border border-ink-100 dark:border-ink-800
         hover:border-ink-200 dark:hover:border-ink-700 transition-colors group"
     >
-      <div className="w-12 h-16 rounded-lg overflow-hidden shrink-0 bg-ink-100 dark:bg-ink-800">
-        <img
+      <div className="w-12 h-16 rounded-lg overflow-hidden shrink-0 bg-ink-100 dark:bg-ink-800 relative">
+        <LazyImage
           src={manga.cover}
           alt={manga.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-          loading="lazy"
-          referrerPolicy="no-referrer"
         />
       </div>
       <div className="min-w-0 flex-1">

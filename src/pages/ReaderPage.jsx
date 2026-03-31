@@ -7,6 +7,7 @@ import {
 import { useChapterPages, useMangaDetail } from '../hooks/usemanga.js';
 import { useAppStore } from '../store/appStore.js';
 import { PageSpinner, ErrorState } from '../components/ui/shared.jsx';
+import LazyImage from '../components/ui/LazyImage.jsx';
 
 export default function ReaderPage() {
   const { chapterId } = useParams();
@@ -208,36 +209,38 @@ export default function ReaderPage() {
       </div>
 
       {/* Pages */}
-      <main className="flex-1 flex flex-col items-center py-4">
+      <main className="flex-1 flex flex-col items-center py-4 text-center">
         {readerMode === 'scroll' ? (
           // Scroll mode
-          <div className={`w-full ${fitMode === 'width' ? 'max-w-3xl' : 'max-w-xl'} mx-auto`}>
+          <div className={`w-full ${fitMode === 'width' ? 'max-w-3xl' : 'max-w-xl'} mx-auto space-y-1`}>
             {pages.pages.map((page) => (
-              <div key={page.index} className="reader-page mb-1">
-                <img
-                  src={page.url}
-                  alt={`Page ${page.index}`}
-                  className="w-full block"
-                  loading="lazy"
-                />
-              </div>
+              <LazyImage
+                key={page.index}
+                src={page.url}
+                fallbackUrls={page.fallbackUrls}
+                alt={`Page ${page.index}`}
+                className="w-full"
+              />
             ))}
           </div>
         ) : (
           // Paged mode
           <div className="flex-1 flex flex-col items-center justify-center w-full px-4">
             <div
-              className={`relative ${
+              className={`relative shadow-2xl ${
                 fitMode === 'width' ? 'w-full max-w-2xl' : 'h-[80vh] w-auto'
               }`}
             >
-              <img
-                src={pages.pages[currentPage - 1]?.url}
-                alt={`Page ${currentPage}`}
-                className={`block mx-auto ${
-                  fitMode === 'height' ? 'h-[80vh] w-auto' : 'w-full'
-                }`}
-              />
+              {pages.pages[currentPage - 1] && (
+                <LazyImage
+                  src={pages.pages[currentPage - 1].url}
+                  fallbackUrls={pages.pages[currentPage - 1].fallbackUrls}
+                  alt={`Page ${currentPage}`}
+                  className={`block mx-auto ${
+                    fitMode === 'height' ? 'h-[80vh] w-auto' : 'w-full'
+                  }`}
+                />
+              )}
             </div>
 
             {/* Paged navigation */}

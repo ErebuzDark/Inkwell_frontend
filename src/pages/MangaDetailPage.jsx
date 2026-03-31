@@ -7,6 +7,7 @@ import { useMangaDetail } from '../hooks/usemanga.js';
 import { useAppStore } from '../store/appStore.js';
 import ChapterList from '../components/ui/ChapterList.jsx';
 import { PageSpinner, ErrorState } from '../components/ui/shared.jsx';
+import LazyImage from '../components/ui/LazyImage.jsx';
 
 function getTypeClass(type) {
   switch (type?.toLowerCase()) {
@@ -44,12 +45,11 @@ export default function MangaDetailPage() {
       <div className="flex flex-col sm:flex-row gap-6 mb-10">
         {/* Cover */}
         <div className="shrink-0 w-40 sm:w-48 mx-auto sm:mx-0">
-          <div className="aspect-[2/3] rounded-xl overflow-hidden bg-ink-100 dark:bg-ink-800 shadow-lg">
-            <img
+          <div className="aspect-[2/3] rounded-xl overflow-hidden bg-ink-100 dark:bg-ink-800 shadow-lg relative">
+            <LazyImage
               src={manga.cover}
               alt={manga.title}
               className="w-full h-full object-cover"
-              referrerPolicy="no-referrer"
             />
           </div>
         </div>
