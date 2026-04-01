@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useMangaDetail, useRelatedManga } from '../hooks/usemanga.js';
 import { useAppStore, BOOKMARK_STATUSES } from '../store/appStore.js';
+import { useAchievementStore } from '../store/achievementStore.js';
 import ChapterList from '../components/ui/ChapterList.jsx';
 import { PageSpinner, ErrorState, SectionHeader } from '../components/ui/shared.jsx';
 import LazyImage from '../components/ui/LazyImage.jsx';
@@ -28,6 +29,7 @@ export default function MangaDetailPage() {
     isBookmarked, addBookmark, removeBookmark,
     bookmarkStatuses, setBookmarkStatus, getChaptersReadCount,
   } = useAppStore();
+  const incrementStat = useAchievementStore((s) => s.incrementStat);
   const [showStatus, setShowStatus] = useState(false);
 
   if (isLoading) return <PageSpinner />;
@@ -187,7 +189,14 @@ export default function MangaDetailPage() {
               </Link>
             )}
             <button
-              onClick={() => bookmarked ? removeBookmark(manga.id) : addBookmark(manga)}
+              onClick={() => {
+                if (bookmarked) {
+                  removeBookmark(manga.id);
+                } else {
+                  addBookmark(manga);
+                  incrementStat('collectionsAdded', 1);
+                }
+              }}
               className={`btn-ghost border ${bookmarked
                 ? 'border-accent text-accent'
                 : 'border-ink-200 dark:border-ink-700'

@@ -70,7 +70,7 @@ export default function HomePage() {
       )}
 
       {/* Latest Updates */}
-      <section>
+      <section id="tour-latest">
         <SectionHeader
           title="Latest Updates"
           subtitle="Recently updated chapters"
@@ -95,7 +95,7 @@ export default function HomePage() {
       </section>
 
       {/* Trending Now */}
-      <section>
+      <section id="tour-trending">
         <SectionHeader
           title="Trending Now"
           subtitle="Popular this month"

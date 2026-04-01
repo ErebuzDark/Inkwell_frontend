@@ -13,9 +13,15 @@ export default function Layout() {
           <span className="font-display font-semibold text-ink-900 dark:text-ink-100 text-sm">
             Inkwell
           </span>
-          <p className="text-xs text-ink-400 dark:text-ink-600 font-mono">
-            Manga · Manhwa · Manhua — All rights to respective creators.
-          </p>
+          <div className="flex items-center gap-2">
+            {/* gitgub icon */}
+            <a href="https://github.com/ErebuzDark/mangareader">
+              <img src="https://img.icons8.com/ios-filled/50/000000/github.png" alt="GitHub" width={20} height={20} className="dark:invert" />
+            </a>
+            <p className="text-xs text-ink-400 dark:text-ink-600 font-mono">
+              ErebuzDark — All rights to respective creators.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

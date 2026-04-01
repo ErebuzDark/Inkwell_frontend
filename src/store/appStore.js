@@ -24,6 +24,10 @@ export const useAppStore = create(
         document.documentElement.classList.toggle('dark', theme === 'dark');
       },
 
+      // Onboarding Tour
+      hasSeenTour: false,
+      setHasSeenTour: (value) => set({ hasSeenTour: value }),
+
       // Bookmarks
       bookmarks: [],
       bookmarkStatuses: {}, // { [mangaId]: 'reading' | 'plan_to_read' | 'completed' | 'on_hold' | 'dropped' }

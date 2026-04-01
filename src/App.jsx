@@ -9,25 +9,38 @@ import ReaderPage from './pages/ReaderPage.jsx';
 import BookmarksPage from './pages/BookmarksPage.jsx';
 import CollectionsPage from './pages/CollectionsPage.jsx';
 import StatsPage from './pages/StatsPage.jsx';
+import AchievementsPage from './pages/AchievementsPage.jsx';
+import GuidedTour from './components/ui/GuidedTour.jsx';
+import ScrollToTop from './components/ui/ScrollToTop.jsx';
+import AchievementToast from './components/ui/AchievementToast.jsx';
+import { useAchievementStore } from './store/achievementStore.js';
 
 export default function App() {
   const initTheme = useAppStore((s) => s.initTheme);
+  const recordActivity = useAchievementStore((s) => s.recordActivity);
 
   useEffect(() => {
     initTheme();
-  }, [initTheme]);
+    recordActivity();
+  }, [initTheme, recordActivity]);
 
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/browse" element={<BrowsePage />} />
-        <Route path="/manga/:id" element={<MangaDetailPage />} />
-        <Route path="/bookmarks" element={<BookmarksPage />} />
-        <Route path="/collections" element={<CollectionsPage />} />
-        <Route path="/stats" element={<StatsPage />} />
-      </Route>
-      <Route path="/read/:chapterId" element={<ReaderPage />} />
-    </Routes>
+    <>
+      <ScrollToTop />
+      <AchievementToast />
+      <GuidedTour />
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/browse" element={<BrowsePage />} />
+          <Route path="/manga/:id" element={<MangaDetailPage />} />
+          <Route path="/bookmarks" element={<BookmarksPage />} />
+          <Route path="/collections" element={<CollectionsPage />} />
+          <Route path="/stats" element={<StatsPage />} />
+          <Route path="/achievements" element={<AchievementsPage />} />
+        </Route>
+        <Route path="/read/:chapterId" element={<ReaderPage />} />
+      </Routes>
+    </>
   );
 }

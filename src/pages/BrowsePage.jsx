@@ -39,9 +39,6 @@ export default function BrowsePage() {
   useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedQ(query);
-      if (query.trim()) {
-        addSearchHistory(query.trim());
-      }
     }, 350);
     return () => clearTimeout(t);
   }, [query]);
@@ -104,6 +101,7 @@ export default function BrowsePage() {
 
   const clearSearch = () => {
     setQuery('');
+    setDebouncedQ('');
     setSearchParams({});
   };
 
@@ -138,7 +136,17 @@ export default function BrowsePage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  if (query.trim()) addSearchHistory(query.trim());
+                  setShowHistory(false);
+                }
+              }}
               onFocus={() => setShowHistory(true)}
+              onBlur={() => {
+                if (query.trim()) addSearchHistory(query.trim());
+                setTimeout(() => setShowHistory(false), 200);
+              }}
               placeholder="Search by title, genre, author..."
               className="input-base pl-9 pr-9"
             />

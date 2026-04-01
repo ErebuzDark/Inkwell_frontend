@@ -10,6 +10,7 @@ import { useAppStore } from '../store/appStore.js';
 import { PageSpinner, ErrorState } from '../components/ui/shared.jsx';
 import LazyImage from '../components/ui/LazyImage.jsx';
 import ZoomableImage from '../components/ui/ZoomableImage.jsx';
+import { useAchievementStore } from '../store/achievementStore.js';
 
 const READER_THEMES = [
   { value: 'dark', label: 'Dark', bg: 'bg-ink-950', text: 'text-ink-100' },
@@ -30,6 +31,7 @@ export default function ReaderPage() {
     theme, toggleTheme, setLastRead, markChapterRead, trackChapterRead,
     readerSettings, setReaderSettings,
   } = useAppStore();
+  const incrementStat = useAchievementStore((s) => s.incrementStat);
 
   const [readerMode, setReaderMode] = useState(readerSettings.mode || 'scroll');
   const [currentPage, setCurrentPage] = useState(1);
@@ -56,8 +58,18 @@ export default function ReaderPage() {
       setLastRead(mangaId, chapterId);
       markChapterRead(mangaId, chapterId);
       trackChapterRead(manga?.genres || []);
+      
+      // Update achievements
+      incrementStat('chaptersRead', 1);
+      
+      if (manga?.chapters && manga?.chapters.length > 0) {
+        const isLatest = manga.chapters[0].id === chapterId;
+        if (isLatest) {
+          incrementStat('mangasFinished', 1);
+        }
+      }
     }
-  }, [mangaId, chapterId, setLastRead, markChapterRead, trackChapterRead, manga?.genres]);
+  }, [mangaId, chapterId, setLastRead, markChapterRead, trackChapterRead, manga?.genres, incrementStat, manga?.chapters]);
 
   // Auto-scroll effect
   useEffect(() => {
@@ -67,6 +79,25 @@ export default function ReaderPage() {
     }, 16); // ~60fps
     return () => clearInterval(interval);
   }, [autoScroll, autoScrollSpeed, readerMode]);
+
+  // Auto-scroll interrupt (stop if user scrolls up or presses up keys)
+  useEffect(() => {
+    if (!autoScroll) return;
+    const handleInterrupt = (e) => {
+      if (e.type === 'wheel' && e.deltaY < 0) {
+        setAutoScroll(false);
+      }
+      if (e.type === 'keydown' && ['ArrowUp', 'PageUp'].includes(e.key)) {
+        setAutoScroll(false);
+      }
+    };
+    window.addEventListener('wheel', handleInterrupt, { passive: true });
+    window.addEventListener('keydown', handleInterrupt);
+    return () => {
+      window.removeEventListener('wheel', handleInterrupt);
+      window.removeEventListener('keydown', handleInterrupt);
+    };
+  }, [autoScroll]);
 
   // Auto-page for paged/double mode
   useEffect(() => {
@@ -198,7 +229,26 @@ export default function ReaderPage() {
       className={`min-h-screen ${themeObj.bg} flex flex-col`}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
+      onClick={() => {
+        if (autoScroll) setAutoScroll(false);
+      }}
     >
+      {/* Auto-Scroll Floating Stop Button */}
+      {autoScroll && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] animate-slide-up">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setAutoScroll(false);
+            }}
+            className="flex items-center gap-2 px-6 py-3 rounded-full bg-accent text-white shadow-xl hover:bg-accent-hover hover:scale-105 active:scale-95 transition-all font-display font-medium backdrop-blur-md"
+          >
+            <Pause fill="currentColor" size={16} />
+            Stop Reading
+          </button>
+        </div>
+      )}
+
       {/* Reader Toolbar */}
       <header className={`sticky top-0 z-50 ${readerTheme === 'amoled' ? 'bg-black/95' : 'bg-ink-950/95'} backdrop-blur-md border-b border-ink-800`}>
         <div className="max-w-4xl mx-auto px-4 h-12 flex items-center justify-between gap-3">

@@ -4,7 +4,7 @@ import { Search, Moon, Sun, Bookmark, BookOpen, Menu, X } from 'lucide-react';
 import { useAppStore } from '../../store/appStore.js';
 
 export default function Navbar() {
-  const { theme, toggleTheme } = useAppStore();
+  const { theme, toggleTheme, addSearchHistory } = useAppStore();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -13,6 +13,7 @@ export default function Navbar() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
+      addSearchHistory(query.trim());
       navigate(`/browse?q=${encodeURIComponent(query.trim())}`);
       setQuery('');
       setSearchOpen(false);
@@ -25,6 +26,7 @@ export default function Navbar() {
     { to: '/bookmarks', label: 'Bookmarks' },
     { to: '/collections', label: 'Collections' },
     { to: '/stats', label: 'Stats' },
+    { to: '/achievements', label: 'Achievements' },
   ];
 
   return (
@@ -51,6 +53,7 @@ export default function Navbar() {
               key={to}
               to={to}
               end={to === '/'}
+              id={to === '/browse' ? 'tour-nav-browse' : undefined}
               className={({ isActive }) =>
                 `px-3 py-1.5 rounded-md text-sm font-medium font-display transition-colors duration-150
                 ${
@@ -79,7 +82,10 @@ export default function Navbar() {
               />
               <button
                 type="button"
-                onClick={() => setSearchOpen(false)}
+                onClick={() => {
+                  setQuery('');
+                  setSearchOpen(false);
+                }}
                 className="btn-ghost p-2"
               >
                 <X size={16} />
@@ -90,6 +96,7 @@ export default function Navbar() {
               onClick={() => setSearchOpen(true)}
               className="btn-ghost p-2 hidden md:flex"
               aria-label="Search"
+              id="tour-nav-search"
             >
               <Search size={16} />
             </button>
@@ -108,6 +115,7 @@ export default function Navbar() {
             onClick={toggleTheme}
             className="btn-ghost p-2"
             aria-label="Toggle theme"
+            id="tour-nav-theme"
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
