@@ -23,6 +23,8 @@ export default function Navbar() {
     { to: '/', label: 'Home' },
     { to: '/browse', label: 'Browse' },
     { to: '/bookmarks', label: 'Bookmarks' },
+    { to: '/collections', label: 'Collections' },
+    { to: '/stats', label: 'Stats' },
   ];
 
   return (

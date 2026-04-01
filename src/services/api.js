@@ -30,6 +30,8 @@ export const mangaApi = {
   list: (page = 1) => api.get('manga', { params: { page } }),
   detail: (id) => api.get(`/manga/${id}`),
   latest: () => api.get('/manga/latest'),
+  trending: () => api.get('/manga/trending'),
+  related: (id) => api.get(`/manga/${id}/related`),
   genres: () => api.get('/manga/genres'),
   ratings: () => api.get('/manga/ratings'),
 };
@@ -39,5 +41,17 @@ export const chapterApi = {
 };
 
 export const searchApi = {
-  search: (q, filters = {}) => api.get('search', { params: { q, ...filters } }),
+  search: (q, filters = {}) => api.get('search', {
+    params: {
+      q,
+      ...filters,
+      // Convert arrays to CSV for multi-tag support
+      ...(filters.genres && Array.isArray(filters.genres)
+        ? { genres: filters.genres.join(',') }
+        : {}),
+      ...(filters.excludeGenres && Array.isArray(filters.excludeGenres)
+        ? { excludeGenres: filters.excludeGenres.join(',') }
+        : {}),
+    },
+  }),
 };

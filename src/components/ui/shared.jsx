@@ -40,12 +40,12 @@ export function EmptyState({ icon: Icon = SearchX, title = 'Nothing found', desc
 
 export function SectionHeader({ title, subtitle, action }) {
   return (
-    <div className="flex items-end justify-between mb-5">
+    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-5">
       <div>
         <h2 className="font-display font-semibold text-xl text-ink-900 dark:text-ink-100">{title}</h2>
         {subtitle && <p className="text-sm text-ink-400 dark:text-ink-500 mt-0.5">{subtitle}</p>}
       </div>
-      {action}
+      {action && <div>{action}</div>}
     </div>
   );
 }

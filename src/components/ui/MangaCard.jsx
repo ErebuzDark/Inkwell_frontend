@@ -13,8 +13,9 @@ function getTypeClass(type) {
 }
 
 export default function MangaCard({ manga }) {
-  const { isBookmarked, addBookmark, removeBookmark } = useAppStore();
+  const { isBookmarked, addBookmark, removeBookmark, getChaptersReadCount } = useAppStore();
   const bookmarked = isBookmarked(manga.id);
+  const chaptersRead = getChaptersReadCount(manga.id);
 
   const handleBookmark = (e) => {
     e.preventDefault();
@@ -57,6 +58,16 @@ export default function MangaCard({ manga }) {
             }`}>
             {manga.status}
           </span>
+        )}
+
+        {/* Progress bar for bookmarked manga */}
+        {bookmarked && chaptersRead > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/30">
+            <div
+              className="h-full bg-accent transition-all duration-300"
+              style={{ width: `${Math.min(chaptersRead * 2, 100)}%` }}
+            />
+          </div>
         )}
       </div>
 

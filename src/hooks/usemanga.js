@@ -31,6 +31,23 @@ export function useLatestUpdates() {
   });
 }
 
+export function useTrending() {
+  return useQuery({
+    queryKey: ['manga', 'trending'],
+    queryFn: () => mangaApi.trending(),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useRelatedManga(id) {
+  return useQuery({
+    queryKey: ['manga', 'related', id],
+    queryFn: () => mangaApi.related(id),
+    enabled: !!id,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
 export function useGenres() {
   return useQuery({
     queryKey: ['genres'],
@@ -57,7 +74,10 @@ export function useChapterPages(chapterId) {
 }
 
 export function useSearch(query, filters = {}) {
-  const hasQuery = !!(query?.trim() || Object.values(filters).some(Boolean));
+  const hasQuery = !!(query?.trim() || Object.entries(filters).some(([k, v]) => {
+    if (k === 'genres' || k === 'excludeGenres') return Array.isArray(v) && v.length > 0;
+    return Boolean(v);
+  }));
 
   return useInfiniteQuery({
     queryKey: ['search', query, filters],
