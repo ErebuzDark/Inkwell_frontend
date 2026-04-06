@@ -10,6 +10,8 @@ import BookmarksPage from './pages/BookmarksPage.jsx';
 import CollectionsPage from './pages/CollectionsPage.jsx';
 import StatsPage from './pages/StatsPage.jsx';
 import AchievementsPage from './pages/AchievementsPage.jsx';
+import AnimeDetailPage from './pages/AnimeDetailPage.jsx';
+import AnimeWatchPage from './pages/AnimeWatchPage.jsx';
 import GuidedTour from './components/ui/GuidedTour.jsx';
 import ScrollToTop from './components/ui/ScrollToTop.jsx';
 import AchievementToast from './components/ui/AchievementToast.jsx';
@@ -38,6 +40,8 @@ export default function App() {
           <Route path="/collections" element={<CollectionsPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/achievements" element={<AchievementsPage />} />
+          <Route path="/anime/:id" element={<AnimeDetailPage />} />
+          <Route path="/anime/watch/:episodeId" element={<AnimeWatchPage />} />
         </Route>
         <Route path="/read/:chapterId" element={<ReaderPage />} />
       </Routes>

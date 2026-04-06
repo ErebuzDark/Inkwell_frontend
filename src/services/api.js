@@ -62,3 +62,12 @@ export const searchApi = {
     },
   }),
 };
+
+export const animeApi = {
+  list: (params = {}) => api.get('anime', { params }),
+  genres: () => api.get('anime/genres'),
+  trending: (page = 1) => api.get('anime/trending', { params: { page } }),
+  search: (q, page = 1) => api.get('anime/search', { params: { q, page } }),
+  detail: (id) => api.get(`anime/info/${id}`),
+  watch: (episodeId) => api.get(`anime/watch/${episodeId}`),
+};

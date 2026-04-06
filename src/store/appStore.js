@@ -172,6 +172,10 @@ export const useAppStore = create(
             },
           };
         }),
+      
+      // Global Home/Browse Mode (Manga/Anime)
+      homeMode: 'manga', // 'manga' | 'anime'
+      setHomeMode: (mode) => set({ homeMode: mode }),
     }),
     {
       name: 'inkwell-store',
@@ -187,6 +191,7 @@ export const useAppStore = create(
         browseFilters: state.browseFilters,
         readerSettings: state.readerSettings,
         collections: state.collections,
+        homeMode: state.homeMode,
       }),
     }
   )
