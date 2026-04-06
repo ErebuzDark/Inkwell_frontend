@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Search, Moon, Sun, Bookmark, BookOpen, Menu, X } from 'lucide-react';
+import { Search, Moon, Sun, BookOpen, X } from 'lucide-react';
 import { useAppStore } from '../../store/appStore.js';
 
 export default function Navbar() {
   const { theme, toggleTheme, addSearchHistory } = useAppStore();
   const [searchOpen, setSearchOpen] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
 
@@ -102,15 +101,6 @@ export default function Navbar() {
             </button>
           )}
 
-          {/* Mobile search */}
-          <Link to="/browse" className="btn-ghost p-2 md:hidden" aria-label="Search">
-            <Search size={16} />
-          </Link>
-
-          <Link to="/bookmarks" className="btn-ghost p-2 md:hidden" aria-label="Bookmarks">
-            <Bookmark size={16} />
-          </Link>
-
           <button
             onClick={toggleTheme}
             className="btn-ghost p-2"
@@ -119,43 +109,8 @@ export default function Navbar() {
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
-
-          {/* Mobile menu toggle */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="btn-ghost p-2 md:hidden"
-            aria-label="Menu"
-          >
-            {mobileOpen ? <X size={16} /> : <Menu size={16} />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile nav drawer */}
-      {mobileOpen && (
-        <div className="md:hidden border-t border-ink-200 dark:border-ink-800 bg-ink-50 dark:bg-ink-950 animate-fade-in">
-          <nav className="px-4 py-3 flex flex-col gap-1">
-            {navLinks.map(({ to, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={to === '/'}
-                onClick={() => setMobileOpen(false)}
-                className={({ isActive }) =>
-                  `px-3 py-2 rounded-md text-sm font-display font-medium transition-colors
-                  ${
-                    isActive
-                      ? 'text-ink-900 dark:text-ink-100 bg-ink-100 dark:bg-ink-800'
-                      : 'text-ink-500 dark:text-ink-400'
-                  }`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
-      )}
     </header>
   );
 }

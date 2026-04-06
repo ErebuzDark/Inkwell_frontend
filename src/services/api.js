@@ -1,6 +1,13 @@
 import axios from 'axios';
 
 let baseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+
+// Handle Flutter WebView environment for local data fetching
+if (window.location.port === '8080') {
+  // Over USB with adb reverse, localhost on phone bridges to localhost on Mac!
+  baseUrl = 'http://localhost:3001/api';
+}
+
 if (!baseUrl.endsWith('/api') && !baseUrl.endsWith('/api/')) {
   baseUrl = baseUrl.endsWith('/') ? `${baseUrl}api` : `${baseUrl}/api`;
 }

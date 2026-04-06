@@ -135,35 +135,43 @@ export default function FilterBar({ genres = [], filters, onChange }) {
               : ''}
             <ChevronDown size={14} className="text-ink-400" />
           </button>
-
           {genreOpen && (
-            <div className="absolute top-full left-0 mt-1 z-30 bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-700 rounded-xl shadow-xl py-2 w-72 max-h-80 overflow-y-auto animate-fade-in">
-              <p className="px-3 pb-2 text-[10px] font-mono text-ink-400 uppercase tracking-wider">
-                Click to include · Right-click to exclude
-              </p>
-              <div className="flex flex-wrap gap-1.5 px-3">
-                {genres.map((g) => {
-                  const isIncluded = selectedGenres.includes(g);
-                  const isExcluded = excludedGenres.includes(g);
-                  return (
-                    <button
-                      key={g}
-                      onClick={() => toggleGenre(g)}
-                      onContextMenu={(e) => { e.preventDefault(); toggleExclude(g, e); }}
-                      className={`px-2 py-1 rounded-md text-[11px] font-mono transition-all duration-100 border
+            <>
+              {/* Mobile backdrop */}
+              <div 
+                className="fixed inset-0 z-40 bg-ink-900/40 dark:bg-black/60 backdrop-blur-sm sm:hidden animate-fade-in"
+                onClick={(e) => { e.stopPropagation(); setGenreOpen(false); }}
+              />
+              <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[90vw] max-w-sm max-h-[70vh]
+                              bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-700 rounded-3xl shadow-2xl py-4 overflow-y-auto animate-fade-in
+                              sm:absolute sm:top-full sm:left-0 sm:mt-1 sm:translate-x-0 sm:translate-y-0 sm:w-72 sm:max-h-80 sm:rounded-xl sm:py-2 sm:shadow-xl">
+                <p className="px-3 pb-2 text-[10px] font-mono text-ink-400 uppercase tracking-wider">
+                  Click to include · Right-click to exclude
+                </p>
+                <div className="flex flex-wrap gap-1.5 px-3">
+                  {genres.map((g) => {
+                    const isIncluded = selectedGenres.includes(g);
+                    const isExcluded = excludedGenres.includes(g);
+                    return (
+                      <button
+                        key={g}
+                        onClick={() => toggleGenre(g)}
+                        onContextMenu={(e) => { e.preventDefault(); toggleExclude(g, e); }}
+                        className={`px-2 py-1 rounded-md text-[11px] font-mono transition-all duration-100 border
                         ${isIncluded
-                          ? 'bg-accent/10 border-accent/40 text-accent font-medium'
-                          : isExcluded
-                            ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700 text-red-500 line-through'
-                            : 'bg-ink-50 dark:bg-ink-800 border-transparent text-ink-600 dark:text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-700'
-                        }`}
-                    >
-                      {isExcluded && '−'}{isIncluded && '+'}{g}
-                    </button>
-                  );
-                })}
+                            ? 'bg-accent/10 border-accent/40 text-accent font-medium'
+                            : isExcluded
+                              ? 'bg-red-50 dark:bg-red-900/20 border-red-300 dark:border-red-700 text-red-500 line-through'
+                              : 'bg-ink-50 dark:bg-ink-800 border-transparent text-ink-600 dark:text-ink-400 hover:bg-ink-100 dark:hover:bg-ink-700'
+                          }`}
+                      >
+                        {isExcluded && '−'}{isIncluded && '+'}{g}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
 
@@ -190,7 +198,7 @@ export default function FilterBar({ genres = [], filters, onChange }) {
           {excludedGenres.map((g) => (
             <span key={`exc-${g}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-mono bg-red-50 dark:bg-red-900/20 text-red-500 border border-red-300 dark:border-red-700">
               −{g}
-              <button onClick={() => toggleExclude(g, { stopPropagation: () => {} })} className="hover:text-red-700"><X size={10} /></button>
+              <button onClick={() => toggleExclude(g, { stopPropagation: () => { } })} className="hover:text-red-700"><X size={10} /></button>
             </span>
           ))}
         </div>
@@ -199,30 +207,30 @@ export default function FilterBar({ genres = [], filters, onChange }) {
   );
 }
 
-function SelectFilter({ label, value, options, onChange, optionLabels, icon }) {
+function SelectFilter({label, value, options, onChange, optionLabels, icon}) {
   return (
-    <div className="relative">
-      {icon && (
-        <span className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">{icon}</span>
-      )}
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`appearance-none pr-8 py-1.5 rounded-lg border border-ink-200 dark:border-ink-700
+      <div className="relative">
+        {icon && (
+          <span className="absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none">{icon}</span>
+        )}
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`appearance-none pr-8 py-1.5 rounded-lg border border-ink-200 dark:border-ink-700
           bg-white dark:bg-ink-900 text-ink-800 dark:text-ink-200
           text-sm font-body focus:outline-none focus:ring-2 focus:ring-accent/30
           cursor-pointer transition-colors ${icon ? 'pl-7' : 'pl-3'}`}
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {optionLabels ? optionLabels[opt] : (opt === 'All' || opt === '' ? `${label}: All` : opt)}
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        size={14}
-        className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-400 pointer-events-none"
-      />
-    </div>
-  );
+        >
+          {options.map((opt) => (
+            <option key={opt} value={opt}>
+              {optionLabels ? optionLabels[opt] : (opt === 'All' || opt === '' ? `${label}: All` : opt)}
+            </option>
+          ))}
+        </select>
+        <ChevronDown
+          size={14}
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-400 pointer-events-none"
+        />
+      </div>
+      );
 }

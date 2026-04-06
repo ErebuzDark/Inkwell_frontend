@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import * as ReactJoyride from 'react-joyride';
+import { Joyride, STATUS } from 'react-joyride';
 import { useAppStore } from '../../store/appStore.js';
 import { Bot, X, ChevronRight, Check } from 'lucide-react';
-
-const Joyride = ReactJoyride.default || ReactJoyride.Joyride;
-const { STATUS } = ReactJoyride;
 
 // Custom Tooltip with Mascot
 const TooltipWithMascot = ({
