@@ -27,7 +27,10 @@ export default function VideoPlayer({ url, poster }) {
     let hls;
     const video = videoRef.current;
     
-    if (Hls.isSupported() && url) {
+    // Simple format detection
+    const isM3U8 = url && (url.includes('.m3u8') || url.includes('m3u8'));
+
+    if (Hls.isSupported() && url && isM3U8) {
       hls = new Hls({
         maxMaxBufferLength: 100,
         xhrSetup: (xhr, url) => {
@@ -40,18 +43,21 @@ export default function VideoPlayer({ url, poster }) {
       hls.loadSource(url);
       hls.attachMedia(video);
       
-      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-        setLevels(data.levels);
-        setCurrentLevel(hls.currentLevel);
-      });
-      
-      hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
-        setCurrentLevel(data.level);
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+           console.error('HLS Fatal Error, falling back to native player:', data.type);
+           video.src = url;
+           setIsBuffering(false);
+        }
       });
     } else if (url) {
       // Fallback for native HLS (Safari) or direct MP4/WebM
       video.src = url;
       setIsBuffering(false);
+      
+      // Clear levels for non-HLS
+      setLevels([]);
+      setCurrentLevel(-1);
     }
     
     return () => {

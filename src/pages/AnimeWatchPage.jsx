@@ -15,7 +15,22 @@ export default function AnimeWatchPage() {
   const { data: anime, isLoading: animeLoading } = useAnimeDetail(animeId);
 
   if (watchLoading || animeLoading) return <PageSpinner />;
-  if (watchError || !watchData) return <ErrorState message="Could not load video player." />;
+  
+  // Show error state if the backend returns a 404 or sources are empty
+  if (watchError || !watchData || !watchData.sources || watchData.sources.length === 0) {
+    const errorMessage = watchError?.message || "Episode sources not found. This title might be currently unavailable on our primary servers.";
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <ErrorState message={errorMessage} />
+        <button 
+          onClick={() => navigate(-1)}
+          className="mt-4 px-6 py-2 bg-accent text-white rounded-xl hover:opacity-90 transition-opacity"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
 
   const defaultSource = watchData.sources?.find(s => s.quality === 'default') || watchData.sources?.[0];
   
