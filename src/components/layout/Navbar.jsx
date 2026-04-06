@@ -23,6 +23,7 @@ export default function Navbar() {
     { to: '/', label: 'Home' },
     { to: '/browse', label: 'Browse' },
     { to: '/bookmarks', label: 'Bookmarks' },
+    { to: '/browse?type=anime', label: 'Anime' },
     { to: '/collections', label: 'Collections' },
     { to: '/stats', label: 'Stats' },
     { to: '/achievements', label: 'Achievements' },

@@ -1,15 +1,26 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, X, Clock, Trash2 } from 'lucide-react';
-import { useSearch, useMangaList, useGenres } from '../hooks/usemanga.js';
+import { Search, X, Clock, Trash2, BookOpen, Tv } from 'lucide-react';
+import { useSearch as useMangaSearch, useMangaList, useGenres } from '../hooks/usemanga.js';
+import { useAnimeSearch, useAnimeList, useAnimeGenres } from '../hooks/useAnime.js';
 import MangaGrid from '../components/ui/MangaGrid.jsx';
+import AnimeGrid from '../components/ui/AnimeGrid.jsx';
 import FilterBar from '../components/ui/FilterBar.jsx';
 import { PageSpinner, ErrorState, EmptyState } from '../components/ui/shared.jsx';
 import { useAppStore } from '../store/appStore.js';
 
 export default function BrowsePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { browseFilters, setBrowseFilters, searchHistory, addSearchHistory, removeSearchHistoryItem, clearSearchHistory } = useAppStore();
+  const { 
+    browseFilters, 
+    setBrowseFilters, 
+    searchHistory, 
+    addSearchHistory, 
+    removeSearchHistoryItem, 
+    clearSearchHistory,
+    homeMode: mode,
+    setHomeMode: setMode
+  } = useAppStore();
 
   const [query, setQuery] = useState(browseFilters.q || searchParams.get('q') || '');
   const [debouncedQ, setDebouncedQ] = useState(query);
@@ -17,7 +28,9 @@ export default function BrowsePage() {
   const [showHistory, setShowHistory] = useState(false);
   const searchRef = useRef(null);
 
-  const { data: genres = [] } = useGenres();
+  const { data: mangaGenres = [] } = useGenres();
+  const { data: animeGenres = [] } = useAnimeGenres();
+  const genres = mode === 'manga' ? mangaGenres : animeGenres;
 
   // Close search history on click outside
   useEffect(() => {
@@ -30,10 +43,12 @@ export default function BrowsePage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Sync with store
+  // Sync with store (only if manga, or handle both)
   useEffect(() => {
-    setBrowseFilters(debouncedQ, filters);
-  }, [debouncedQ, filters, setBrowseFilters]);
+    if (mode === 'manga') {
+      setBrowseFilters(debouncedQ, filters);
+    }
+  }, [debouncedQ, filters, setBrowseFilters, mode]);
 
   // Debounce search input
   useEffect(() => {
@@ -43,66 +58,103 @@ export default function BrowsePage() {
     return () => clearTimeout(t);
   }, [query]);
 
-  // Sync URL param (only for search query)
+  // Sync URL param
   useEffect(() => {
     const q = searchParams.get('q');
+    const type = searchParams.get('type');
     if (q !== null && q !== query) {
       setQuery(q);
       setDebouncedQ(q);
     }
+    if (type && type !== mode) {
+      setMode(type);
+    }
   }, [searchParams]);
 
-  // Update URL when search changes
+  // Update URL when search or mode changes
   useEffect(() => {
-    if (debouncedQ) {
-      setSearchParams({ q: debouncedQ }, { replace: true });
-    } else if (searchParams.get('q')) {
-      setSearchParams({}, { replace: true });
-    }
-  }, [debouncedQ, setSearchParams, searchParams]);
+    const params = { type: mode };
+    if (debouncedQ) params.q = debouncedQ;
+    setSearchParams(params, { replace: true });
+  }, [debouncedQ, mode, setSearchParams]);
+
+  // Manga Data
+  const {
+    data: mangaSearchData,
+    isLoading: mangaSearchLoading,
+    error: mangaSearchError,
+    fetchNextPage: fetchNextMangaSearch,
+    hasNextPage: hasNextMangaSearch,
+    isFetchingNextPage: isFetchingNextMangaSearch,
+  } = useMangaSearch(debouncedQ, filters);
+
+  const {
+    data: mangaListData,
+    isLoading: mangaListLoading,
+    error: mangaListError,
+    fetchNextPage: fetchNextMangaList,
+    hasNextPage: hasNextMangaList,
+    isFetchingNextPage: isFetchingNextMangaList,
+  } = useMangaList();
+
+  // Anime Data
+  const {
+    data: animeSearchData,
+    isLoading: animeSearchLoading,
+    error: animeSearchError,
+    fetchNextPage: fetchNextAnimeSearch,
+    hasNextPage: hasNextAnimeSearch,
+    isFetchingNextPage: isFetchingNextAnimeSearch,
+  } = useAnimeSearch(debouncedQ);
+
+  const {
+    data: animeListData,
+    isLoading: animeListLoading,
+    error: animeListError,
+    fetchNextPage: fetchNextAnimeList,
+    hasNextPage: hasNextAnimeList,
+    isFetchingNextPage: isFetchingNextAnimeList,
+  } = useAnimeList({ 
+    type: filters.type, 
+    genre: filters.genres?.[0] 
+  });
 
   const hasSearchOrFilters = debouncedQ.trim() || Object.entries(filters).some(([k, v]) => {
     if (k === 'genres' || k === 'excludeGenres') return Array.isArray(v) && v.length > 0;
     return Boolean(v);
   });
 
-  const {
-    data: searchData,
-    isLoading: searchLoading,
-    error: searchError,
-    fetchNextPage: fetchNextSearch,
-    hasNextPage: hasNextSearch,
-    isFetchingNextPage: isFetchingNextSearch,
-  } = useSearch(debouncedQ, filters);
+  const isLoading = mode === 'manga' 
+    ? (hasSearchOrFilters ? mangaSearchLoading : mangaListLoading)
+    : (debouncedQ.trim() ? animeSearchLoading : (hasSearchOrFilters ? animeListLoading : animeListLoading));
 
-  const {
-    data: listData,
-    isLoading: listLoading,
-    error: listError,
-    fetchNextPage: fetchNextList,
-    hasNextPage: hasNextList,
-    isFetchingNextPage: isFetchingNextList,
-  } = useMangaList();
+  const error = mode === 'manga'
+    ? (hasSearchOrFilters ? mangaSearchError : mangaListError)
+    : (debouncedQ.trim() ? animeSearchError : animeListError);
 
-  const isLoading = hasSearchOrFilters ? searchLoading : listLoading;
-  const error = hasSearchOrFilters ? searchError : listError;
-  const isFetchingNextPage = hasSearchOrFilters ? isFetchingNextSearch : isFetchingNextList;
-  const hasNextPage = hasSearchOrFilters ? hasNextSearch : hasNextList;
-  const fetchNextPage = hasSearchOrFilters ? fetchNextSearch : fetchNextList;
+  const titles = mode === 'manga'
+    ? (hasSearchOrFilters
+        ? mangaSearchData?.pages.flatMap(page => page.results) || []
+        : mangaListData?.pages.flatMap(page => page.titles) || [])
+    : (debouncedQ.trim()
+        ? animeSearchData?.pages.flatMap(page => page.results) || []
+        : animeListData?.pages.flatMap(page => page.results) || []);
 
-  // Flatten titles from pages
-  const titles = hasSearchOrFilters
-    ? searchData?.pages.flatMap(page => page.results) || []
-    : listData?.pages.flatMap(page => page.titles) || [];
+  const hasNextPage = mode === 'manga' 
+    ? (hasSearchOrFilters ? hasNextMangaSearch : hasNextMangaList)
+    : (debouncedQ.trim() ? hasNextAnimeSearch : hasNextAnimeList);
 
-  const totalResults = hasSearchOrFilters
-    ? searchData?.pages[0]?.total || 0
-    : listData?.pages[0]?.total || 0;
+  const fetchNextPage = mode === 'manga'
+    ? (hasSearchOrFilters ? fetchNextMangaSearch : fetchNextMangaList)
+    : (debouncedQ.trim() ? fetchNextAnimeSearch : fetchNextAnimeList);
+
+  const isFetchingNextPage = mode === 'manga'
+    ? (hasSearchOrFilters ? isFetchingNextMangaSearch : isFetchingNextMangaList)
+    : (debouncedQ.trim() ? isFetchingNextAnimeSearch : isFetchingNextAnimeList);
 
   const clearSearch = () => {
     setQuery('');
     setDebouncedQ('');
-    setSearchParams({});
   };
 
   const selectFromHistory = (q) => {
@@ -114,19 +166,45 @@ export default function BrowsePage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-display font-bold text-3xl text-ink-900 dark:text-ink-100 mb-1">
-          Browse
-        </h1>
-        <p className="text-sm text-ink-400 dark:text-ink-500">
-          Explore manga, manhwa, and manhua
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+        <div>
+          <h1 className="font-display font-bold text-3xl text-ink-900 dark:text-ink-100 mb-1">
+            Browse
+          </h1>
+          <p className="text-sm text-ink-400 dark:text-ink-500">
+            Explore {mode === 'manga' ? 'manga, manhwa, and manhua' : 'anime and movies'}
+          </p>
+        </div>
+
+        {/* Mini Toggle */}
+        <div className="bg-ink-100 dark:bg-ink-900 p-1 rounded-full inline-flex relative border border-ink-200 dark:border-ink-800 self-start sm:self-center">
+           <div 
+            className={`absolute top-1 bottom-1 w-[80px] bg-white dark:bg-ink-950 rounded-full shadow-sm transition-transform duration-300 ${
+              mode === 'manga' ? 'translate-x-0' : 'translate-x-full'
+            }`} 
+          />
+          <button
+            onClick={() => setMode('manga')}
+            className={`w-[80px] relative z-10 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold transition-colors ${
+              mode === 'manga' ? 'text-accent' : 'text-ink-500'
+            }`}
+          >
+            <BookOpen size={12} /> Manga
+          </button>
+          <button
+            onClick={() => setMode('anime')}
+            className={`w-[80px] relative z-10 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold transition-colors ${
+              mode === 'anime' ? 'text-blue-500' : 'text-ink-500'
+            }`}
+          >
+            <Tv size={12} /> Anime
+          </button>
+        </div>
       </div>
 
       {/* Search + Filters */}
       <div className="flex flex-col gap-3 mb-6">
         <div className="flex flex-col gap-3">
-          {/* Search input with history */}
           <div className="relative w-full sm:max-w-md" ref={searchRef}>
             <Search
               size={15}
@@ -147,7 +225,7 @@ export default function BrowsePage() {
                 if (query.trim()) addSearchHistory(query.trim());
                 setTimeout(() => setShowHistory(false), 200);
               }}
-              placeholder="Search by title, genre, author..."
+              placeholder={`Search ${mode}...`}
               className="input-base pl-9 pr-9"
             />
             {query && (
@@ -159,7 +237,6 @@ export default function BrowsePage() {
               </button>
             )}
 
-            {/* Search history dropdown */}
             {showHistory && searchHistory.length > 0 && !query && (
               <div className="absolute top-full left-0 right-0 mt-1 z-20 bg-white dark:bg-ink-900 border border-ink-200 dark:border-ink-700 rounded-lg shadow-lg py-1 animate-fade-in">
                 <div className="flex items-center justify-between px-3 py-1.5">
@@ -192,18 +269,9 @@ export default function BrowsePage() {
             )}
           </div>
 
-          {/* Filters */}
-          <FilterBar genres={genres} filters={filters} onChange={(f) => { setFilters(f); }} />
+          <FilterBar genres={genres} filters={filters} onChange={(f) => { setFilters(f); }} mode={mode} />
         </div>
       </div>
-
-      {/* Results header */}
-      {hasSearchOrFilters && !isLoading && (
-        <p className="text-xs font-mono text-ink-400 dark:text-ink-500 mb-4">
-          {totalResults} result{totalResults !== 1 ? 's' : ''}
-          {debouncedQ && ` for "${debouncedQ}"`}
-        </p>
-      )}
 
       {/* Content */}
       {isLoading ? (
@@ -217,7 +285,11 @@ export default function BrowsePage() {
         />
       ) : (
         <div className="animate-fade-in">
-          <MangaGrid titles={titles} />
+          {mode === 'manga' ? (
+            <MangaGrid titles={titles} />
+          ) : (
+            <AnimeGrid animeList={titles} />
+          )}
           
           {hasNextPage && (
             <div className="mt-12 flex justify-center">

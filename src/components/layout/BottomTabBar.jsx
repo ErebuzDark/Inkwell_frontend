@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router-dom';
-import { IoHomeOutline, IoCompassOutline, IoBookmarkOutline, IoLibraryOutline, IoStatsChartOutline } from 'react-icons/io5';
+import { IoHomeOutline, IoCompassOutline, IoBookmarkOutline, IoLibraryOutline, IoStatsChartOutline, IoPlayCircleOutline } from 'react-icons/io5';
 
 export default function BottomTabBar() {
   const navTabs = [
     { to: '/', label: 'Home', icon: IoHomeOutline },
-    { to: '/browse', label: 'Browse', icon: IoCompassOutline },
+    { to: '/browse?type=anime', label: 'Watch', icon: IoPlayCircleOutline },
     { to: '/bookmarks', label: 'Bookmarks', icon: IoBookmarkOutline },
     { to: '/collections', label: 'Library', icon: IoLibraryOutline },
     { to: '/stats', label: 'Stats', icon: IoStatsChartOutline },

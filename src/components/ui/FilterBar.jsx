@@ -2,7 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, X, ArrowUpDown } from 'lucide-react';
 import { useRatings } from '../../hooks/usemanga.js';
 
-const TYPES = ['All', 'Manga', 'Manhwa', 'Manhua'];
+const MANGA_TYPES = ['All', 'Manga', 'Manhwa', 'Manhua'];
+const ANIME_TYPES = ['All', 'TV', 'Movie', 'OVA', 'ONA', 'Special'];
+
 const STATUSES = ['All', 'Ongoing', 'Completed'];
 const SORT_OPTIONS = [
   { value: '', label: 'Default' },
@@ -12,7 +14,9 @@ const SORT_OPTIONS = [
   { value: 'title', label: 'Title A → Z' },
 ];
 
-export default function FilterBar({ genres = [], filters, onChange }) {
+export default function FilterBar({ genres = [], filters, onChange, mode = 'manga' }) {
+  const isManga = mode === 'manga';
+  const TYPES = isManga ? MANGA_TYPES : ANIME_TYPES;
   const { data: ratings = [] } = useRatings();
   const [genreOpen, setGenreOpen] = useState(false);
   const genreRef = useRef(null);
@@ -111,13 +115,15 @@ export default function FilterBar({ genres = [], filters, onChange }) {
           icon={<ArrowUpDown size={12} className="text-ink-400" />}
         />
 
-        {/* Rating */}
-        <SelectFilter
-          label="Rating"
-          value={filters.rating || 'All'}
-          options={['All', ...ratings]}
-          onChange={(v) => handleChange('rating', v)}
-        />
+        {/* Rating - Only for Manga */}
+        {isManga && (
+          <SelectFilter
+            label="Rating"
+            value={filters.rating || 'All'}
+            options={['All', ...ratings]}
+            onChange={(v) => handleChange('rating', v)}
+          />
+        )}
 
         {/* Genre multi-select button */}
         <div className="relative" ref={genreRef}>
