@@ -21,10 +21,9 @@ export default function BottomTabBar() {
           end={to === '/'}
           className={({ isActive }) =>
             `flex flex-col items-center justify-center p-2 rounded-xl transition-all duration-200
-            ${
-              isActive
-                ? 'text-accent scale-110 drop-shadow-sm'
-                : 'text-ink-400 dark:text-ink-500 hover:text-ink-600 dark:hover:text-ink-300'
+            ${isActive
+              ? 'text-accent scale-110 drop-shadow-sm'
+              : 'text-ink-400 dark:text-ink-500 hover:text-ink-600 dark:hover:text-ink-300'
             }`
           }
         >

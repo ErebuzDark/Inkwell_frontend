@@ -126,10 +126,13 @@ export default function GuidedTour() {
   ];
 
   const handleJoyrideCallback = (data) => {
-    const { status } = data;
-    const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
+    const { status, action, type } = data;
+    
+    // Some versions emit action="close" or action="skip" instead of reaching FINISHED strictly
+    const isFinished = [STATUS.FINISHED, STATUS.SKIPPED].includes(status);
+    const isClosedManually = action === 'close' || action === 'skip' || type === 'tour:end';
 
-    if (finishedStatuses.includes(status)) {
+    if (isFinished || isClosedManually) {
       setHasSeenTour(true);
       setRun(false);
     }

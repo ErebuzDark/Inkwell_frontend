@@ -177,6 +177,7 @@ export const useAppStore = create(
       name: 'inkwell-store',
       partialize: (state) => ({
         theme: state.theme,
+        hasSeenTour: state.hasSeenTour,
         bookmarks: state.bookmarks,
         bookmarkStatuses: state.bookmarkStatuses,
         readingHistory: state.readingHistory,
