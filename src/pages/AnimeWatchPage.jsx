@@ -87,7 +87,7 @@ export default function AnimeWatchPage() {
             {anime?.episodes?.map((ep) => (
               <button
                 key={ep.id}
-                onClick={() => navigate(`/anime/watch/${ep.id}?anime=${animeId}`)}
+                onClick={() => navigate(`/anime/watch/${encodeURIComponent(ep.id)}?anime=${animeId}`)}
                 className={`w-full text-left p-3 mb-1 rounded-xl flex items-center gap-3 transition-colors ${
                   ep.id === episodeId
                     ? 'bg-accent/10 border-accent/20 text-accent border'
