@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import LazyImage from './LazyImage.jsx';
+import { getProxyUrl } from '../../services/api.js';
 
 export default function AnimeCard({ anime }) {
   return (
@@ -8,9 +9,9 @@ export default function AnimeCard({ anime }) {
       to={`/anime/${anime.id}`}
       className="group block relative"
     >
-      <div className="w-full aspect-[2/3] rounded-xl overflow-hidden bg-ink-100 dark:bg-ink-800 shadow-sm transition-transform duration-300 relative border border-ink-200/50 dark:border-ink-800/50 hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:shadow-md">
+       <div className="w-full aspect-[2/3] rounded-xl overflow-hidden bg-ink-100 dark:bg-ink-800 shadow-sm transition-transform duration-300 relative border border-ink-200/50 dark:border-ink-800/50 hover:border-blue-500/50 dark:hover:border-blue-400/50 hover:shadow-md">
         <LazyImage
-          src={anime.image}
+          src={getProxyUrl(anime.image)}
           alt={anime.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />

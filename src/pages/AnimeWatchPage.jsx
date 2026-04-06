@@ -3,6 +3,7 @@ import { ArrowLeft, List } from 'lucide-react';
 import { useAnimeDetail, useAnimeWatch } from '../hooks/useAnime.js';
 import { PageSpinner, ErrorState } from '../components/ui/shared.jsx';
 import VideoPlayer from '../components/ui/VideoPlayer.jsx';
+import { getProxyUrl } from '../services/api.js';
 
 export default function AnimeWatchPage() {
   const { episodeId } = useParams();
@@ -16,15 +17,9 @@ export default function AnimeWatchPage() {
   if (watchLoading || animeLoading) return <PageSpinner />;
   if (watchError || !watchData) return <ErrorState message="Could not load video player." />;
 
-  // Construct Proxy URL
   const defaultSource = watchData.sources?.find(s => s.quality === 'default') || watchData.sources?.[0];
   
-  let proxyUrl = '';
-  if (defaultSource) {
-    const backendUrl = (import.meta.env.VITE_API_BASE_URL || window.location.origin.replace('5173', '3001')) + '/api/proxy';
-    const headersBase64 = watchData.headers ? window.btoa(JSON.stringify(watchData.headers)) : '';
-    proxyUrl = `${backendUrl}?url=${encodeURIComponent(defaultSource.url)}&headers=${headersBase64}`;
-  }
+  const proxyUrl = defaultSource ? getProxyUrl(defaultSource.url, watchData.headers) : '';
 
   const currentEpIndex = anime?.episodes?.findIndex(e => e.id === episodeId);
   const nextEp = currentEpIndex >= 0 && currentEpIndex < anime.episodes.length - 1 ? anime.episodes[currentEpIndex + 1] : null;

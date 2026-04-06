@@ -71,3 +71,25 @@ export const animeApi = {
   detail: (id) => api.get(`anime/info/${id}`),
   watch: (episodeId) => api.get(`anime/watch/${episodeId}`),
 };
+
+/**
+ * Utility to construct a proxy URL for any media (images, videos, etc.)
+ */
+export const getProxyUrl = (url, headers = null) => {
+  if (!url) return '';
+  if (url.startsWith('blob:') || url.startsWith('data:')) return url;
+  
+  // Resolve host
+  let backendBase = import.meta.env.VITE_API_BASE_URL;
+  if (!backendBase || backendBase === '/api') {
+    backendBase = window.location.origin.replace('5173', '3001');
+  }
+  
+  // Ensure absolute URL for proxy endpoint
+  const proxyEndpoint = `${backendBase.replace(/\/$/, '').replace(/\/api$/, '')}/api/proxy`;
+  
+  // Headers should be base64 encoded for the proxy
+  const headersBase64 = headers ? window.btoa(JSON.stringify(headers)) : '';
+  
+  return `${proxyEndpoint}?url=${encodeURIComponent(url)}&headers=${headersBase64}`;
+};
