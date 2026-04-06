@@ -5,7 +5,7 @@ import {
   Settings, Loader2 
 } from 'lucide-react';
 
-export default function VideoPlayer({ url, poster }) {
+export default function VideoPlayer({ url, poster, onEnded }) {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const hlsRef = useRef(null);
@@ -164,6 +164,7 @@ export default function VideoPlayer({ url, poster }) {
         onWaiting={() => setIsBuffering(true)}
         onPlaying={() => setIsBuffering(false)}
         onCanPlay={() => setIsBuffering(false)}
+        onEnded={onEnded}
       />
 
       {isBuffering && (
