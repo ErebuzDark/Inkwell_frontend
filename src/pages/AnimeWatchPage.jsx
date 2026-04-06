@@ -16,8 +16,16 @@ export default function AnimeWatchPage() {
 
   if (watchLoading || animeLoading) return <PageSpinner />;
   
+  // Clean up and filter out broken source URLs (like those containing .replace() from Saturn)
+  const validSources = watchData?.sources?.filter(s => 
+    s.url && 
+    !s.url.includes('.replace(') && 
+    !s.url.includes('function') &&
+    s.url.startsWith('http')
+  ) || [];
+
   // Show error state if the backend returns a 404 or sources are empty
-  if (watchError || !watchData || !watchData.sources || watchData.sources.length === 0) {
+  if (watchError || !watchData || validSources.length === 0) {
     const errorMessage = watchError?.message || "Episode sources not found. This title might be currently unavailable on our primary servers.";
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
@@ -32,7 +40,7 @@ export default function AnimeWatchPage() {
     );
   }
 
-  const defaultSource = watchData.sources?.find(s => s.quality === 'default') || watchData.sources?.[0];
+  const defaultSource = validSources.find(s => s.quality === 'default') || validSources[0];
   
   const proxyUrl = defaultSource ? getProxyUrl(defaultSource.url, watchData.headers) : '';
 

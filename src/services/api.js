@@ -72,6 +72,16 @@ export const animeApi = {
   watch: (episodeId) => api.get(`anime/watch/${episodeId}`),
 };
 
+// Helper for UTF-8 Safe Base64 encoding (window.btoa only supports ASCII)
+const safeBtoa = (str) => {
+  try {
+    return window.btoa(unescape(encodeURIComponent(str)));
+  } catch (e) {
+    console.warn('SafeBtoa failed:', e);
+    return '';
+  }
+};
+
 /**
  * Utility to construct a proxy URL for any media (images, videos, etc.)
  */
@@ -88,8 +98,8 @@ export const getProxyUrl = (url, headers = null) => {
   // Ensure absolute URL for proxy endpoint
   const proxyEndpoint = `${backendBase.replace(/\/$/, '').replace(/\/api$/, '')}/api/proxy`;
   
-  // Headers should be base64 encoded for the proxy
-  const headersBase64 = headers ? window.btoa(JSON.stringify(headers)) : '';
+  // Headers should be base64 encoded for the proxy using safeBtoa for mobile compatibility
+  const headersBase64 = headers ? safeBtoa(JSON.stringify(headers)) : '';
   
   return `${proxyEndpoint}?url=${encodeURIComponent(url)}&headers=${headersBase64}`;
 };
