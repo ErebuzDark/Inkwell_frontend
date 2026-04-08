@@ -30,7 +30,7 @@ export default function App() {
     <>
       <ScrollToTop />
       <AchievementToast />
-      <GuidedTour />
+      {/* <GuidedTour /> */}
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
