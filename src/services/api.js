@@ -101,5 +101,5 @@ export const getProxyUrl = (url, headers = null) => {
   // Headers should be base64 encoded for the proxy using safeBtoa for mobile compatibility
   const headersBase64 = headers ? safeBtoa(JSON.stringify(headers)) : '';
   
-  return `${proxyEndpoint}?url=${encodeURIComponent(url)}&headers=${headersBase64}`;
+  return `${proxyEndpoint}?url=${encodeURIComponent(url)}&headers=${encodeURIComponent(headersBase64)}`;
 };
