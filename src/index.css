@@ -1,6 +1,41 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-display: "Sora", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+  --font-mono: "DM Mono", monospace;
+
+  /* Colors - Ink Palette */
+  --color-ink-50: #f7f7f8;
+  --color-ink-100: #eeeef0;
+  --color-ink-200: #d9d9de;
+  --color-ink-300: #b8b8c2;
+  --color-ink-400: #9090a0;
+  --color-ink-500: #717185;
+  --color-ink-600: #5a5a6e;
+  --color-ink-700: #494959;
+  --color-ink-800: #3d3d4a;
+  --color-ink-900: #35353f;
+  --color-ink-950: #1a1a22;
+
+  /* Accent Colors */
+  --color-accent: #e8533a;
+  --color-accent-hover: #d4422a;
+
+  /* Animations & Keyframes */
+  --animate-fade-in: fadeIn 0.3s ease-out;
+  --animate-slide-up: slideUp 0.3s ease-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
 
 @layer base {
   :root {
