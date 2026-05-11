@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Moon, Sun, BookOpen, X, Search as SearchIcon } from 'lucide-react';
-import { Input, Button, Space } from 'antd';
+import { Moon, Sun, BookOpen, Search as SearchIcon } from 'lucide-react';
+import { Input, Button } from 'antd';
 import { useAppStore } from '../../store/appStore.js';
 
 export default function Navbar() {
   const { theme, toggleTheme, addSearchHistory } = useAppStore();
-  const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
 
@@ -16,7 +15,6 @@ export default function Navbar() {
       addSearchHistory(q.trim());
       navigate(`/browse?q=${encodeURIComponent(q.trim())}`);
       setQuery('');
-      setSearchOpen(false);
     }
   };
 
@@ -30,8 +28,10 @@ export default function Navbar() {
     { to: '/achievements', label: 'Achievements' },
   ];
 
+  const isDark = theme === 'dark';
+
   return (
-    <header className="sticky top-0 z-40 bg-white/80 dark:bg-ink-950/80 backdrop-blur-md border-b border-ink-100 dark:border-ink-800">
+    <header className="sticky top-0 z-40 bg-white dark:bg-ink-950 border-b border-ink-100 dark:border-ink-800 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link
@@ -80,13 +80,13 @@ export default function Navbar() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onPressEnter={() => handleSearch()}
-              className="w-48 lg:w-64 rounded-full bg-ink-50 dark:bg-ink-900 border-none hover:bg-ink-100 dark:hover:bg-ink-800 transition-all focus:w-64 lg:focus:w-80"
+              className="w-48 lg:w-64 rounded-full border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 transition-all focus:w-64 lg:focus:w-80"
             />
           </div>
 
           <Button
             type="text"
-            icon={theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            icon={isDark ? <Sun size={18} /> : <Moon size={18} />}
             onClick={toggleTheme}
             className="text-ink-500 hover:text-ink-900 dark:hover:text-ink-100"
           />

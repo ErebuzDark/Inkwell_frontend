@@ -4,6 +4,7 @@ import { useAnimeDetail } from '../hooks/useAnime.js';
 import { PageSpinner, ErrorState } from '../components/ui/shared.jsx';
 import LazyImage from '../components/ui/LazyImage.jsx';
 import { getProxyUrl } from '../services/api.js';
+import CharacterSection from '../components/ui/CharacterSection.jsx';
 
 export default function AnimeDetailPage() {
   const { id } = useParams();
@@ -95,6 +96,11 @@ export default function AnimeDetailPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Characters */}
+      <div className="mb-12">
+        <CharacterSection title={anime.title} type="ANIME" />
       </div>
 
       {/* Episodes List */}

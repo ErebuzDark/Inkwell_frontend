@@ -12,6 +12,7 @@ import ChapterList from '../components/ui/ChapterList.jsx';
 import { PageSpinner, ErrorState, SectionHeader } from '../components/ui/shared.jsx';
 import LazyImage from '../components/ui/LazyImage.jsx';
 import MangaGrid from '../components/ui/MangaGrid.jsx';
+import CharacterSection from '../components/ui/CharacterSection.jsx';
 
 function getTypeClass(type) {
   switch (type?.toLowerCase()) {
@@ -210,6 +211,11 @@ export default function MangaDetailPage() {
           </div>
         </div>
       </div>
+      {/* Characters */}
+      <div className="mb-12">
+        <CharacterSection title={manga.title} type="MANGA" />
+      </div>
+
       {/* Chapter list */}
       <div>
         <h2 className="font-display font-semibold text-lg text-ink-900 dark:text-ink-100 mb-4">

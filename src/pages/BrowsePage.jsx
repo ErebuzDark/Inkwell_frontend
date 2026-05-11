@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Clock, BookOpen, Tv, X } from 'lucide-react';
 import { Input, Button, Space, Tag, Empty } from 'antd';
@@ -12,18 +12,17 @@ import { useAppStore } from '../store/appStore.js';
 
 export default function BrowsePage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { 
-    browseFilters, 
-    setBrowseFilters, 
-    searchHistory, 
-    addSearchHistory, 
-    removeSearchHistoryItem, 
-    clearSearchHistory,
-    homeMode: mode,
-    setHomeMode: setMode
-  } = useAppStore();
+  
+  const browseFilters = useAppStore(s => s.browseFilters);
+  const setBrowseFilters = useAppStore(s => s.setBrowseFilters);
+  const searchHistory = useAppStore(s => s.searchHistory);
+  const addSearchHistory = useAppStore(s => s.addSearchHistory);
+  const removeSearchHistoryItem = useAppStore(s => s.removeSearchHistoryItem);
+  const clearSearchHistory = useAppStore(s => s.clearSearchHistory);
+  const mode = useAppStore(s => s.homeMode);
+  const setMode = useAppStore(s => s.setHomeMode);
 
-  const [query, setQuery] = useState(browseFilters.q || searchParams.get('q') || '');
+  const [query, setQuery] = useState(() => browseFilters.q || searchParams.get('q') || '');
   const [debouncedQ, setDebouncedQ] = useState(query);
   const [filters, setFilters] = useState(browseFilters.filters || {});
   const [showHistory, setShowHistory] = useState(false);
@@ -33,40 +32,40 @@ export default function BrowsePage() {
   const { data: animeGenres = [] } = useAnimeGenres();
   const genres = mode === 'manga' ? mangaGenres : animeGenres;
 
-  // Sync with store
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedQ(query);
+    }, 500);
+    return () => clearTimeout(t);
+  }, [query]);
+
   useEffect(() => {
     if (mode === 'manga') {
       setBrowseFilters(debouncedQ, filters);
     }
-  }, [debouncedQ, filters, setBrowseFilters, mode]);
-
-  // Debounce search input
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setDebouncedQ(query);
-    }, 350);
-    return () => clearTimeout(t);
-  }, [query]);
-
-  // Sync URL param
-  useEffect(() => {
-    const q = searchParams.get('q');
-    const type = searchParams.get('type');
-    if (q !== null && q !== query) {
-      setQuery(q);
-      setDebouncedQ(q);
+    
+    const currentUrlQ = searchParams.get('q') || '';
+    const currentUrlType = searchParams.get('type') || 'manga';
+    
+    if (debouncedQ !== currentUrlQ || mode !== currentUrlType) {
+      const params = { type: mode };
+      if (debouncedQ) params.q = debouncedQ;
+      setSearchParams(params, { replace: true });
     }
-    if (type && type !== mode) {
-      setMode(type);
+  }, [debouncedQ, filters, mode, setSearchParams, setBrowseFilters, searchParams]);
+
+  useEffect(() => {
+    const urlQ = searchParams.get('q') || '';
+    const urlType = searchParams.get('type');
+    
+    if (urlQ !== query && urlQ !== debouncedQ) {
+       setQuery(urlQ);
+       setDebouncedQ(urlQ);
+    }
+    if (urlType && urlType !== mode) {
+      setMode(urlType);
     }
   }, [searchParams]);
-
-  // Update URL
-  useEffect(() => {
-    const params = { type: mode };
-    if (debouncedQ) params.q = debouncedQ;
-    setSearchParams(params, { replace: true });
-  }, [debouncedQ, mode, setSearchParams]);
 
   const {
     data: mangaSearchData,
@@ -107,22 +106,30 @@ export default function BrowsePage() {
     genre: filters.genres?.[0] 
   });
 
-  const hasSearchOrFilters = debouncedQ.trim() || Object.entries(filters).some(([k, v]) => {
-    if (k === 'genres' || k === 'excludeGenres') return Array.isArray(v) && v.length > 0;
-    return Boolean(v);
-  });
+  const hasSearchOrFilters = useMemo(() => {
+    return debouncedQ.trim() || Object.entries(filters).some(([k, v]) => {
+      if (k === 'genres' || k === 'excludeGenres') return Array.isArray(v) && v.length > 0;
+      return Boolean(v);
+    });
+  }, [debouncedQ, filters]);
 
   const isLoading = mode === 'manga' 
     ? (hasSearchOrFilters ? mangaSearchLoading : mangaListLoading)
     : (debouncedQ.trim() ? animeSearchLoading : animeListLoading);
 
-  const titles = mode === 'manga'
-    ? (hasSearchOrFilters
-        ? mangaSearchData?.pages.flatMap(page => page.results) || []
-        : mangaListData?.pages.flatMap(page => page.titles) || [])
-    : (debouncedQ.trim()
-        ? animeSearchData?.pages.flatMap(page => page.results) || []
-        : animeListData?.pages.flatMap(page => page.results) || []);
+  const error = mode === 'manga'
+    ? (hasSearchOrFilters ? mangaSearchError : mangaListError)
+    : (debouncedQ.trim() ? animeSearchError : animeListError);
+
+  const titles = useMemo(() => {
+    return mode === 'manga'
+      ? (hasSearchOrFilters
+          ? mangaSearchData?.pages.flatMap(page => page.results) || []
+          : mangaListData?.pages.flatMap(page => page.titles) || [])
+      : (debouncedQ.trim()
+          ? animeSearchData?.pages.flatMap(page => page.results) || []
+          : animeListData?.pages.flatMap(page => page.results) || []);
+  }, [mode, hasSearchOrFilters, mangaSearchData, mangaListData, debouncedQ, animeSearchData, animeListData]);
 
   const hasNextPage = mode === 'manga' 
     ? (hasSearchOrFilters ? hasNextMangaSearch : hasNextMangaList)
@@ -137,10 +144,10 @@ export default function BrowsePage() {
     : (debouncedQ.trim() ? isFetchingNextAnimeSearch : isFetchingNextAnimeList);
 
   const handleSearch = (value) => {
-     if (value.trim()) {
-        addSearchHistory(value.trim());
-     }
-     setShowHistory(false);
+    if (value.trim()) {
+      addSearchHistory(value.trim());
+    }
+    setShowHistory(false);
   };
 
   return (
@@ -190,8 +197,18 @@ export default function BrowsePage() {
               onChange={(e) => setQuery(e.target.value)}
               onPressEnter={(e) => handleSearch(e.target.value)}
               onFocus={() => setShowHistory(true)}
-              suffix={query && <X size={14} className="text-ink-300 cursor-pointer hover:text-ink-600" onClick={() => setQuery('')} />}
-              className="rounded-2xl border-none bg-ink-100 dark:bg-ink-900 hover:bg-ink-200 dark:hover:bg-ink-800 h-11"
+              suffix={
+                <div className="flex items-center min-w-[20px] justify-center">
+                   {query && (
+                     <X 
+                       size={14} 
+                       className="text-ink-300 cursor-pointer hover:text-ink-600 transition-colors" 
+                       onClick={() => { setQuery(''); setDebouncedQ(''); }} 
+                     />
+                   )}
+                </div>
+              }
+              className="rounded-2xl border-ink-200 dark:border-ink-800 bg-white dark:bg-ink-900 h-11"
             />
             
             {showHistory && searchHistory.length > 0 && !query && (
@@ -227,7 +244,7 @@ export default function BrowsePage() {
       </div>
 
       {/* Filters */}
-      <div className="mb-10 bg-ink-50/50 dark:bg-ink-900/20 p-4 rounded-3xl border border-ink-100/50 dark:border-ink-800/50">
+      <div className="mb-10 bg-white dark:bg-ink-900 p-6 rounded-3xl border border-ink-100 dark:border-ink-800 shadow-sm transition-colors duration-200">
         <FilterBar genres={genres} filters={filters} onChange={(f) => setFilters(f)} mode={mode} />
       </div>
 
@@ -255,7 +272,7 @@ export default function BrowsePage() {
                 size="large"
                 loading={isFetchingNextPage}
                 onClick={() => fetchNextPage()}
-                className="min-w-[160px] h-12 rounded-xl font-bold border-ink-200 dark:border-ink-700 text-ink-600 dark:text-ink-300"
+                className="min-w-[160px] h-12 rounded-xl font-bold border-ink-200 dark:border-ink-700 text-ink-600 dark:text-ink-300 hover:text-accent hover:border-accent transition-all"
               >
                 Load More
               </Button>
